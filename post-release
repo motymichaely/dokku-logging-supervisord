@@ -36,6 +36,11 @@ else
   docker commit $id $IMAGE > /dev/null
 fi
 
+# Backup start script to be used in case of exec usage (to support dokku run ...)
+id=$(cat /start | docker run -i -a stdin $IMAGE /bin/bash -c "cat > /dokku-run")
+test $(docker wait $id) -eq 0
+docker commit $id $IMAGE > /dev/null
+
 # Replace /start with our custom runner:
 id=$(cat "$PLUGIN_DIR/lib/runner" | docker run -i -a stdin $IMAGE /bin/bash -c "cat > /start")
 test $(docker wait $id) -eq 0

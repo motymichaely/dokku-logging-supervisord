@@ -5,15 +5,26 @@ export HOME=/app
 hash -r
 cd $HOME
 
-# Generate supervisord.conf:
-bash /build/procfile-to-supervisord /app/Procfile /app/SCALE > supervisord.conf
+case "\$(basename \$0)" in
+  start)
+    if [[ -f Procfile ]]; then
+      # Generate supervisord.conf:
+      bash /build/procfile-to-supervisord /app/Procfile /app/SCALE > supervisord.conf
 
-# Create /var/log/app directory
-mkdir -p /var/log/app
+      # Create /var/log/app directory
+      mkdir -p /var/log/app
 
-# Display the generated supervisord.conf:
-echo "Generated supervisord.conf:"
-cat -n supervisord.conf
+      # Display the generated supervisord.conf:
+      echo "Generated supervisord.conf:"
+      cat -n supervisord.conf
 
-# Start up the app:
-supervisord -c supervisord.conf
+      # Start up the app:
+      supervisord -c supervisord.conf
+    else
+      command="\$(ruby -e "require 'yaml';puts (YAML.load_file('.release')['default_process_types'] || {})['\$1']")"
+    fi
+    ;;
+  *)
+    bash /dokku-run $@
+    ;;
+esac
