@@ -14,6 +14,11 @@ if [ $(docker wait $id) -ne 0 ]; then
   exit 0
 fi
 
+# Make sure /build folder exist
+id=$(docker run -i -a stdin $IMAGE /bin/bash -c "mkdir -p /build")
+test $(docker wait $id) -eq 0
+docker commit $id $IMAGE > /dev/null
+
 copy_to_container "$PLUGIN_DIR/lib/procfile-to-supervisord" /build/procfile-to-supervisord
 if [ -f "$SCALE_FILE" ]; then
   echo "Found SCALE file: $SCALE_FILE"

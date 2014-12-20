@@ -51,7 +51,7 @@ EOF
 
 gen_supervisor_conf
 
-cat "$PROCFILE" | while read line; do
+cat "$PROCFILE" | grep -v \# | while read line; do
   if [ ! -n "$line" ]; then
     continue
   fi
